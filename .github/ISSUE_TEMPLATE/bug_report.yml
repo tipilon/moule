@@ -1,0 +1,49 @@
+name: Rapport de bug
+description: Signaler un problème
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Merci de remplir ce formulaire avec le plus de détails possible.
+
+  - type: input
+    id: firmware-version
+    attributes:
+      label: Version du firmware
+      placeholder: v0.1.0
+    validations:
+      required: true
+
+  - type: input
+    id: board
+    attributes:
+      label: Carte ESP32
+      placeholder: ESP32-DevKitC v4
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Description du problème
+      placeholder: Décrivez clairement ce qui se passe.
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Étapes pour reproduire
+      placeholder: |
+        1. Démarrer l'ESP32
+        2. ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs Serial Monitor
+      render: text
+      placeholder: Coller ici la sortie du moniteur série

@@ -1,0 +1,63 @@
+name: CI — Build & Lint
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build (${{ matrix.environment }})
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        environment: [esp32dev, esp32s3]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # config.h n'est pas dans le dépôt (secrets) — on crée
+      # une copie depuis l'exemple pour que la compilation passe
+      - name: Préparer config.h (CI stub)
+        run: cp src/config_example.h src/config.h
+
+      - name: Cache PlatformIO
+        uses: actions/cache@v4
+        with:
+          path: ~/.platformio
+          key: ${{ runner.os }}-pio-${{ hashFiles('platformio.ini') }}
+          restore-keys: |
+            ${{ runner.os }}-pio-
+
+      - name: Installer PlatformIO
+        run: pip install --quiet platformio
+
+      - name: Compiler — ${{ matrix.environment }}
+        run: pio run --environment ${{ matrix.environment }}
+
+      - name: Vérification de la taille du firmware
+        run: pio run --environment ${{ matrix.environment }} --target size
+
+  # Vérification du format de code (clang-format)
+  lint:
+    name: Lint (clang-format)
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Installer clang-format
+        run: sudo apt-get install -y clang-format
+
+      - name: Vérifier le format
+        run: |
+          find src/ -name "*.cpp" -o -name "*.h" | \
+          xargs clang-format --dry-run --Werror --style=file

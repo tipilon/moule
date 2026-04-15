@@ -1,0 +1,13 @@
+# Normaliser les fins de ligne en LF dans le dépôt
+# (les checkouts Windows auront CRLF localement via core.autocrlf)
+* text=auto eol=lf
+
+# Binaires — pas de conversion
+*.bin   binary
+*.hex   binary
+*.elf   binary
+*.a     binary
+*.o     binary
+*.so    binary
+*.png   binary
+*.jpg   binary

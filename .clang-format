@@ -1,0 +1,26 @@
+---
+BasedOnStyle: Google
+IndentWidth: 4
+ColumnLimit: 100
+UseTab: Never
+
+# Accolades
+BreakBeforeBraces: Attach
+AllowShortFunctionsOnASingleLine: Inline
+AllowShortIfStatementsOnASingleLine: Never
+AllowShortLoopsOnASingleLine: false
+
+# Espaces
+SpaceBeforeParens: ControlStatements
+SpacesInAngles: false
+SpaceAfterCStyleCast: true
+
+# Includes
+SortIncludes: CaseSensitive
+IncludeBlocks: Regroup
+
+# Pointeurs
+PointerAlignment: Left
+
+# Commentaires
+ReflowComments: false

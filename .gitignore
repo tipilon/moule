@@ -1,0 +1,29 @@
+# ── PlatformIO — artefacts de build ─────────────────────────
+.pio/
+.pioenvs/
+.piolibdeps/
+
+# ── SECRETS — ne jamais committer ces fichiers ───────────────
+src/config.h
+secrets.h
+credentials.h
+*.env
+.env.*
+
+# ── VSCode ───────────────────────────────────────────────────
+.vscode/
+!.vscode/extensions.json
+*.code-workspace
+
+# ── OS ───────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+ehthumbs.db
+
+# ── Logs ─────────────────────────────────────────────────────
+*.log
+*.log.*
+
+# ── Dépendances gérées par PlatformIO (dans .pio/) ───────────
+lib_extra_dirs/
