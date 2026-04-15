@@ -27,3 +27,6 @@ ehthumbs.db
 
 # ── Dépendances gérées par PlatformIO (dans .pio/) ───────────
 lib_extra_dirs/
+
+# ── Généré par clangd / compilateur ──────────────────────────
+compile_commands.json

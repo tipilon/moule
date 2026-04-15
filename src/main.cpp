@@ -8,9 +8,11 @@
 
 #include "config.h"
 #include "wifi_manager.h"
+#include "palette_monitor.h"
 
 // ── Instances globales ───────────────────────────────────────
-static WiFiManager wifiManager;
+static WiFiManager     wifiManager;
+static PaletteMonitor  paletteMonitor;
 
 // ── Prototypes ───────────────────────────────────────────────
 static void setupOTA();
@@ -23,6 +25,7 @@ void setup() {
     printBanner();
 
     // WiFi
+    wifiManager.setStatusLed(WIFI_STATUS_LED_PIN);
     wifiManager.begin(WIFI_SSID, WIFI_PASSWORD, WIFI_HOSTNAME);
     if (!wifiManager.connect(WIFI_CONNECT_TIMEOUT_MS)) {
         Serial.println("[FATAL] Impossible de se connecter au WiFi. Redémarrage...");
@@ -33,6 +36,8 @@ void setup() {
 #if OTA_ENABLED
     setupOTA();
 #endif
+
+    paletteMonitor.begin(PALETTE_PIN, PALETTE_LIGHT_PIN, PALETTE_TIMEOUT_MS);
 
     Serial.println("[setup] Initialisation terminée — entrée dans loop()");
 }
@@ -46,8 +51,8 @@ void loop() {
     ArduinoOTA.handle();
 #endif
 
-    // TODO : Ajouter votre logique métier ici
-    // Exemple : lecture capteur, publication MQTT, serveur HTTP...
+    // Surveillance du signal palette
+    paletteMonitor.update();
 
     delay(10);
 }

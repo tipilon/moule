@@ -29,3 +29,24 @@
 // ── Timing ──────────────────────────────────────────────────
 #define WIFI_CONNECT_TIMEOUT_MS   15000U
 #define RECONNECT_DELAY_MS         5000U
+
+// ── LED statut WiFi ──────────────────────────────────────────
+// GPIO 2 = LED intégrée sur la plupart des ESP32 DevKit
+// Mettre à 255 pour désactiver
+#define WIFI_STATUS_LED_PIN    2
+
+// ── Palette Monitor ──────────────────────────────────────────
+// GPIO branché à la sortie de l'opto-isolateur
+#define PALETTE_PIN                    4
+// GPIO pour la lumière d'alarme (relais ou DEL)
+#define PALETTE_LIGHT_PIN             25
+// Délai max autorisé avant alarme en ms (ex : 30000 = 30 s)
+#define PALETTE_TIMEOUT_MS         30000U
+// Fenêtre de debounce anti-rebond en ms
+#define PALETTE_DEBOUNCE_MS           50U
+// true  = signal HIGH → palette active (pull-down interne)
+// false = signal LOW  → palette active (pull-up  interne) ← opto NPN typique
+#define PALETTE_ACTIVE_HIGH         false
+// true  = mettre la sortie HIGH pour allumer la lumière
+// false = mettre la sortie LOW  pour allumer (relais actif-bas)
+#define PALETTE_LIGHT_ACTIVE_HIGH   true

@@ -52,6 +52,13 @@ public:
     /** @return Nombre de reconnexions depuis le démarrage */
     uint32_t getReconnectCount() const { return _reconnectCount; }
 
+    /**
+     * @brief Configure une LED de statut WiFi (optionnel).
+     *        Clignotement lent = connecté, rapide = déconnecté/connexion.
+     * @param pin  Numéro de GPIO (ex: 2 = LED intégrée ESP32)
+     */
+    void setStatusLed(uint8_t pin);
+
 private:
     const char* _ssid     = nullptr;
     const char* _password = nullptr;
@@ -60,7 +67,15 @@ private:
     uint32_t _lastReconnectAttempt = 0;
     uint32_t _reconnectCount       = 0;
 
-    static constexpr uint32_t RECONNECT_DELAY_MS = 5000U;
+    // LED de statut WiFi
+    uint8_t  _ledPin        = 255;   // 255 = non configuré
+    bool     _ledState      = false;
+    uint32_t _lastLedToggle = 0;
+
+    static constexpr uint32_t kReconnectDelayMs  = 5000U;
+    static constexpr uint32_t kLedConnectedMs    = 2000U; // clignotement lent
+    static constexpr uint32_t kLedDisconnectedMs =  300U; // clignotement rapide
 
     void _log(const char* level, const char* msg) const;
+    void _updateLed();
 };

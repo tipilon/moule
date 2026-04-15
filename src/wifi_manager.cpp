@@ -10,6 +10,26 @@ void WiFiManager::_log(const char* level, const char* msg) const {
     Serial.printf("[WiFiManager][%s] %s\n", level, msg);
 }
 
+// ── LED de statut ────────────────────────────────────────────
+
+void WiFiManager::setStatusLed(uint8_t pin) {
+    _ledPin = pin;
+    pinMode(_ledPin, OUTPUT);
+    digitalWrite(_ledPin, LOW);
+}
+
+void WiFiManager::_updateLed() {
+    if (_ledPin == 255) return;
+
+    const uint32_t interval = isConnected() ? kLedConnectedMs : kLedDisconnectedMs;
+    const uint32_t now = millis();
+    if (now - _lastLedToggle >= interval) {
+        _lastLedToggle = now;
+        _ledState = !_ledState;
+        digitalWrite(_ledPin, _ledState ? HIGH : LOW);
+    }
+}
+
 // ── API publique ─────────────────────────────────────────────
 
 void WiFiManager::begin(const char* ssid, const char* password,
@@ -38,10 +58,16 @@ bool WiFiManager::connect(uint32_t timeoutMs) {
     while (WiFi.status() != WL_CONNECTED) {
         if (millis() - start >= timeoutMs) {
             _log("ERROR", "Timeout — connexion échouée");
+            if (_ledPin != 255) digitalWrite(_ledPin, LOW);
             return false;
         }
         delay(250);
         Serial.print('.');
+        // Clignotement rapide pendant la tentative de connexion
+        if (_ledPin != 255) {
+            _ledState = !_ledState;
+            digitalWrite(_ledPin, _ledState ? HIGH : LOW);
+        }
     }
     Serial.println();
 
@@ -58,10 +84,12 @@ void WiFiManager::disconnect() {
 }
 
 void WiFiManager::maintain() {
+    _updateLed();
+
     if (WiFi.status() == WL_CONNECTED) return;
 
     const uint32_t now = millis();
-    if (now - _lastReconnectAttempt < RECONNECT_DELAY_MS) return;
+    if (now - _lastReconnectAttempt < kReconnectDelayMs) return;
 
     _lastReconnectAttempt = now;
     _reconnectCount++;
