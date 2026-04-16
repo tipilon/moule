@@ -8,12 +8,12 @@
 #include <WiFi.h>
 
 class WiFiManager {
-public:
-    WiFiManager()  = default;
+   public:
+    WiFiManager() = default;
     ~WiFiManager() = default;
 
     // Interdit la copie (ressource réseau unique)
-    WiFiManager(const WiFiManager&)            = delete;
+    WiFiManager(const WiFiManager&) = delete;
     WiFiManager& operator=(const WiFiManager&) = delete;
 
     /**
@@ -22,8 +22,7 @@ public:
      * @param password   Mot de passe
      * @param hostname   Nom mDNS/DHCP (optionnel)
      */
-    void begin(const char* ssid, const char* password,
-               const char* hostname = nullptr);
+    void begin(const char* ssid, const char* password, const char* hostname = nullptr);
 
     /**
      * @brief Tente la connexion de manière bloquante.
@@ -59,22 +58,22 @@ public:
      */
     void setStatusLed(uint8_t pin);
 
-private:
-    const char* _ssid     = nullptr;
+   private:
+    const char* _ssid = nullptr;
     const char* _password = nullptr;
     const char* _hostname = nullptr;
 
     uint32_t _lastReconnectAttempt = 0;
-    uint32_t _reconnectCount       = 0;
+    uint32_t _reconnectCount = 0;
 
     // LED de statut WiFi
-    uint8_t  _ledPin        = 255;   // 255 = non configuré
-    bool     _ledState      = false;
+    uint8_t _ledPin = 255;  // 255 = non configuré
+    bool _ledState = false;
     uint32_t _lastLedToggle = 0;
 
-    static constexpr uint32_t kReconnectDelayMs  = 5000U;
-    static constexpr uint32_t kLedConnectedMs    = 2000U; // clignotement lent
-    static constexpr uint32_t kLedDisconnectedMs =  300U; // clignotement rapide
+    static constexpr uint32_t kReconnectDelayMs = 5000U;
+    static constexpr uint32_t kLedConnectedMs = 2000U;    // clignotement lent
+    static constexpr uint32_t kLedDisconnectedMs = 300U;  // clignotement rapide
 
     void _log(const char* level, const char* msg) const;
     void _updateLed();

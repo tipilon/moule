@@ -4,20 +4,21 @@
 // ============================================================
 
 #include "palette_monitor.h"
+
 #include "config.h"
 
 // ── begin() ──────────────────────────────────────────────────
 void PaletteMonitor::begin(uint8_t inputPin, uint8_t lightPin, uint32_t timeoutMs) {
-    _inputPin   = inputPin;
-    _lightPin   = lightPin;
-    _timeoutMs  = timeoutMs;
+    _inputPin = inputPin;
+    _lightPin = lightPin;
+    _timeoutMs = timeoutMs;
 
-    _state          = PaletteState::IDLE;
-    _debouncedHigh  = false;
-    _lastRaw        = false;
-    _debouncing     = false;
-    _pendingState   = false;
-    _debounceStart  = 0;
+    _state = PaletteState::IDLE;
+    _debouncedHigh = false;
+    _lastRaw = false;
+    _debouncing = false;
+    _pendingState = false;
+    _debounceStart = 0;
     _risingEdgeTime = 0;
 
     // Mode pull selon polarité active configurée dans config.h
@@ -30,23 +31,23 @@ void PaletteMonitor::begin(uint8_t inputPin, uint8_t lightPin, uint32_t timeoutM
 #endif
 
     pinMode(_lightPin, OUTPUT);
-    _setLight(false);   // s'assure que la lumière est éteinte au démarrage
+    _setLight(false);  // s'assure que la lumière est éteinte au démarrage
 
-    Serial.printf("[Palette] init — entrée GPIO%u  lumière GPIO%u  délai %ums\n",
-                  _inputPin, _lightPin, _timeoutMs);
+    Serial.printf("[Palette] init — entrée GPIO%u  lumière GPIO%u  délai %ums\n", _inputPin,
+                  _lightPin, _timeoutMs);
 }
 
 // ── update() — appelé dans loop() ────────────────────────────
 void PaletteMonitor::update() {
-    const uint32_t now    = millis();
-    const bool     rawPin = (digitalRead(_inputPin) == HIGH);
+    const uint32_t now = millis();
+    const bool rawPin = (digitalRead(_inputPin) == HIGH);
 
     // ── Debounce anti-rebond ──────────────────────────────────
     if (rawPin != _lastRaw) {
         // Un front est détecté — démarrer (ou relancer) la fenêtre de debounce
-        _lastRaw       = rawPin;
-        _debouncing    = true;
-        _pendingState  = rawPin;
+        _lastRaw = rawPin;
+        _debouncing = true;
+        _pendingState = rawPin;
         _debounceStart = now;
     }
 
@@ -55,8 +56,8 @@ void PaletteMonitor::update() {
         _debouncing = false;
 
         if (_pendingState != _debouncedHigh) {
-            const bool rising  = _pendingState  && !_debouncedHigh;
-            const bool falling = !_pendingState &&  _debouncedHigh;
+            const bool rising = _pendingState && !_debouncedHigh;
+            const bool falling = !_pendingState && _debouncedHigh;
             _debouncedHigh = _pendingState;
 
             if (rising) {
@@ -64,14 +65,16 @@ void PaletteMonitor::update() {
                 _risingEdgeTime = now;
                 _state = PaletteState::TIMING;
                 Serial.println("[Palette] ↑ front montant — décompte démarré");
-                if (_onContact) _onContact(true);
+                if (_onContact)
+                    _onContact(true);
             } else if (falling) {
                 // ── Front descendant : reset alarme ──────────
                 const uint32_t duration = now - _risingEdgeTime;
                 Serial.printf("[Palette] ↓ front descendant — durée active %ums\n", duration);
                 _state = PaletteState::IDLE;
                 _setLight(false);
-                if (_onContact) _onContact(false);
+                if (_onContact)
+                    _onContact(false);
             }
         }
     }
@@ -88,7 +91,8 @@ void PaletteMonitor::update() {
 
 // ── getElapsedMs() ────────────────────────────────────────────
 uint32_t PaletteMonitor::getElapsedMs() const {
-    if (_state == PaletteState::IDLE) return 0;
+    if (_state == PaletteState::IDLE)
+        return 0;
     return millis() - _risingEdgeTime;
 }
 

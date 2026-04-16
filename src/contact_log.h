@@ -14,7 +14,7 @@
 #include <time.h>
 
 class ContactLog {
-public:
+   public:
     // À appeler après que le WiFi soit connecté
     void begin();
 
@@ -24,23 +24,23 @@ public:
     // Enregistre un événement : isOn=true → contact fermé, false → ouvert
     void addEvent(bool isOn);
 
-private:
+   private:
     struct LogEntry {
-        time_t  ts;    // Unix timestamp (epoch) ; < 1 000 000 000 si NTP non synchro
-        bool    isOn;
+        time_t ts;  // Unix timestamp (epoch) ; < 1 000 000 000 si NTP non synchro
+        bool isOn;
     };
 
     static constexpr uint8_t MAX_ENTRIES = 100;
 
-    LogEntry  _buf[MAX_ENTRIES];
-    uint8_t   _head  = 0;   // index de l'entrée la plus ancienne
-    uint8_t   _count = 0;   // nombre d'entrées valides (0..MAX_ENTRIES)
+    LogEntry _buf[MAX_ENTRIES];
+    uint8_t _head = 0;   // index de l'entrée la plus ancienne
+    uint8_t _count = 0;  // nombre d'entrées valides (0..MAX_ENTRIES)
 
     WebServer _srv{80};
 
     // Gestionnaires HTTP
-    void   _handleRoot();
-    void   _handleClear();
+    void _handleRoot();
+    void _handleClear();
 
     // Construction de la page HTML
     String _buildHtml() const;

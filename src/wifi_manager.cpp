@@ -19,7 +19,8 @@ void WiFiManager::setStatusLed(uint8_t pin) {
 }
 
 void WiFiManager::_updateLed() {
-    if (_ledPin == 255) return;
+    if (_ledPin == 255)
+        return;
 
     const uint32_t interval = isConnected() ? kLedConnectedMs : kLedDisconnectedMs;
     const uint32_t now = millis();
@@ -32,9 +33,8 @@ void WiFiManager::_updateLed() {
 
 // ── API publique ─────────────────────────────────────────────
 
-void WiFiManager::begin(const char* ssid, const char* password,
-                        const char* hostname) {
-    _ssid     = ssid;
+void WiFiManager::begin(const char* ssid, const char* password, const char* hostname) {
+    _ssid = ssid;
     _password = password;
     _hostname = hostname;
 
@@ -49,7 +49,8 @@ void WiFiManager::begin(const char* ssid, const char* password,
 }
 
 bool WiFiManager::connect(uint32_t timeoutMs) {
-    if (WiFi.status() == WL_CONNECTED) return true;
+    if (WiFi.status() == WL_CONNECTED)
+        return true;
 
     _log("INFO", "Connexion en cours...");
     WiFi.begin(_ssid, _password);
@@ -58,7 +59,8 @@ bool WiFiManager::connect(uint32_t timeoutMs) {
     while (WiFi.status() != WL_CONNECTED) {
         if (millis() - start >= timeoutMs) {
             _log("ERROR", "Timeout — connexion échouée");
-            if (_ledPin != 255) digitalWrite(_ledPin, LOW);
+            if (_ledPin != 255)
+                digitalWrite(_ledPin, LOW);
             return false;
         }
         delay(250);
@@ -72,8 +74,8 @@ bool WiFiManager::connect(uint32_t timeoutMs) {
     Serial.println();
 
     char buf[64];
-    snprintf(buf, sizeof(buf), "Connecté — IP: %s  RSSI: %d dBm",
-             WiFi.localIP().toString().c_str(), WiFi.RSSI());
+    snprintf(buf, sizeof(buf), "Connecté — IP: %s  RSSI: %d dBm", WiFi.localIP().toString().c_str(),
+             WiFi.RSSI());
     _log("INFO", buf);
     return true;
 }
@@ -86,16 +88,18 @@ void WiFiManager::disconnect() {
 void WiFiManager::maintain() {
     _updateLed();
 
-    if (WiFi.status() == WL_CONNECTED) return;
+    if (WiFi.status() == WL_CONNECTED)
+        return;
 
     const uint32_t now = millis();
-    if (now - _lastReconnectAttempt < kReconnectDelayMs) return;
+    if (now - _lastReconnectAttempt < kReconnectDelayMs)
+        return;
 
     _lastReconnectAttempt = now;
     _reconnectCount++;
 
     char buf[32];
-    snprintf(buf, sizeof(buf), "Reconnexion #%lu...", (unsigned long)_reconnectCount);
+    snprintf(buf, sizeof(buf), "Reconnexion #%lu...", (unsigned long) _reconnectCount);
     _log("WARN", buf);
 
     connect();
