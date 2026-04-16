@@ -46,18 +46,32 @@ jobs:
       - name: Vérification de la taille du firmware
         run: pio run --environment ${{ matrix.environment }} --target size
 
-  # Vérification du format de code (clang-format)
+  # Auto-correction du format de code (clang-format)
+  # Si des fichiers ne respectent pas le style, ils sont corrigés
+  # et un commit "style: clang-format" est poussé automatiquement.
   lint:
-    name: Lint (clang-format)
+    name: Lint (clang-format auto-fix)
     runs-on: ubuntu-latest
+    # Seulement sur push (pas sur PR d'une branche externe)
+    if: github.event_name == 'push'
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          # Token avec droit d'écriture pour pouvoir pousser le commit de correction
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Installer clang-format
-        run: sudo apt-get install -y clang-format
+        run: sudo apt-get install -y --no-install-recommends clang-format
 
-      - name: Vérifier le format
+      - name: Appliquer clang-format
         run: |
-          find src/ -name "*.cpp" -o -name "*.h" | \
-          xargs clang-format --dry-run --Werror --style=file
+          find src/ \( -name "*.cpp" -o -name "*.h" \) \
+            -exec clang-format --style=file -i {} +
+
+      - name: Committer les corrections (si nécessaire)
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "style: clang-format auto-fix [skip ci]"
+          commit_user_name: "github-actions[bot]"
+          commit_user_email: "github-actions[bot]@users.noreply.github.com"
