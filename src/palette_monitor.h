@@ -12,6 +12,7 @@
 
 #pragma once
 #include <Arduino.h>
+#include <functional>
 
 // ── États internes ────────────────────────────────────────────
 enum class PaletteState : uint8_t {
@@ -30,6 +31,9 @@ public:
 
     // À appeler à chaque itération de loop() — entièrement non-bloquant
     void update();
+
+    // Enregistre un callback appelé à chaque changement d'état (true=ON, false=OFF)
+    void setOnContact(std::function<void(bool)> cb) { _onContact = cb; }
 
     // ── Accesseurs ───────────────────────────────────────────
     PaletteState getState()          const { return _state; }
@@ -53,6 +57,8 @@ private:
     uint32_t     _debounceStart;    // timestamp du début du debounce
 
     uint32_t     _risingEdgeTime;   // millis() au moment du front montant
+
+    std::function<void(bool)> _onContact;  // callback ON/OFF (optionnel)
 
     void         _setLight(bool on);
 };

@@ -9,10 +9,12 @@
 #include "config.h"
 #include "wifi_manager.h"
 #include "palette_monitor.h"
+#include "contact_log.h"
 
 // ── Instances globales ───────────────────────────────────────
 static WiFiManager     wifiManager;
 static PaletteMonitor  paletteMonitor;
+static ContactLog      contactLog;
 
 // ── Prototypes ───────────────────────────────────────────────
 static void setupOTA();
@@ -39,6 +41,11 @@ void setup() {
 
     paletteMonitor.begin(PALETTE_PIN, PALETTE_LIGHT_PIN, PALETTE_TIMEOUT_MS);
 
+    contactLog.begin();
+    paletteMonitor.setOnContact([](bool isOn) {
+        contactLog.addEvent(isOn);
+    });
+
     Serial.println("[setup] Initialisation terminée — entrée dans loop()");
 }
 
@@ -53,6 +60,9 @@ void loop() {
 
     // Surveillance du signal palette
     paletteMonitor.update();
+
+    // Traitement des requêtes web
+    contactLog.handle();
 
     delay(10);
 }

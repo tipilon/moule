@@ -35,6 +35,16 @@
 // Mettre à 255 pour désactiver
 #define WIFI_STATUS_LED_PIN    2
 
+// ── NTP (horloge réseau) ─────────────────────────────────────
+// Serveur de temps (pool public, accessible sur Internet)
+#define NTP_SERVER      "pool.ntp.org"
+// Fuseau horaire POSIX — exemples :
+//   "EST5EDT,M3.2.0,M11.1.0"  → Est (Québec / Ontario)
+//   "CST6CDT,M3.2.0,M11.1.0"  → Centre (Manitoba)
+//   "MST7MDT,M3.2.0,M11.1.0"  → Montagne (Alberta)
+//   "PST8PDT,M3.2.0,M11.1.0"  → Pacifique (C.-B.)
+#define NTP_TIMEZONE    "EST5EDT,M3.2.0,M11.1.0"
+
 // ── Palette Monitor ──────────────────────────────────────────
 // GPIO branché à la sortie de l'opto-isolateur
 #define PALETTE_PIN                    4

@@ -64,12 +64,14 @@ void PaletteMonitor::update() {
                 _risingEdgeTime = now;
                 _state = PaletteState::TIMING;
                 Serial.println("[Palette] ↑ front montant — décompte démarré");
+                if (_onContact) _onContact(true);
             } else if (falling) {
                 // ── Front descendant : reset alarme ──────────
                 const uint32_t duration = now - _risingEdgeTime;
                 Serial.printf("[Palette] ↓ front descendant — durée active %ums\n", duration);
                 _state = PaletteState::IDLE;
                 _setLight(false);
+                if (_onContact) _onContact(false);
             }
         }
     }
