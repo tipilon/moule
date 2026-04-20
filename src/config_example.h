@@ -45,6 +45,13 @@
 //   "PST8PDT,M3.2.0,M11.1.0"  → Pacifique (C.-B.)
 #define NTP_TIMEZONE "EST5EDT,M3.2.0,M11.1.0"
 
+// ── Notifications ntfy.sh ────────────────────────────────────
+// Topic unique — choisir un nom difficile à deviner
+// Abonnement dans l'app : ntfy.sh/<NTFY_TOPIC>
+#define NTFY_TOPIC "moule-alarme-CHANGER-CE-NOM"
+#define NTFY_TITLE_ALARM "Alerte moule"
+#define NTFY_TITLE_RESOLVED "Moule — retour normal"
+
 // ── Palette Monitor ──────────────────────────────────────────
 // GPIO branché à la sortie de l'opto-isolateur
 #define PALETTE_PIN 4

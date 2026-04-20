@@ -85,6 +85,8 @@ void PaletteMonitor::update() {
             _state = PaletteState::ALARM;
             _setLight(true);
             Serial.printf("[Palette] *** ALARME *** délai %ums dépassé !\n", _timeoutMs);
+            if (_onAlarm)
+                _onAlarm();
         }
     }
 }

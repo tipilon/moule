@@ -33,8 +33,11 @@ class PaletteMonitor {
     // À appeler à chaque itération de loop() — entièrement non-bloquant
     void update();
 
-    // Enregistre un callback appelé à chaque changement d'état (true=ON, false=OFF)
+    // Callback : changement d'état signal (true=front montant, false=front descendant)
     void setOnContact(std::function<void(bool)> cb) { _onContact = cb; }
+
+    // Callback : déclenché au passage TIMING → ALARM (délai dépassé)
+    void setOnAlarm(std::function<void()> cb) { _onAlarm = cb; }
 
     // ── Accesseurs ───────────────────────────────────────────
     PaletteState getState() const { return _state; }
@@ -59,7 +62,8 @@ class PaletteMonitor {
 
     uint32_t _risingEdgeTime;  // millis() au moment du front montant
 
-    std::function<void(bool)> _onContact;  // callback ON/OFF (optionnel)
+    std::function<void(bool)> _onContact;  // callback signal ON/OFF (optionnel)
+    std::function<void()> _onAlarm;        // callback alarme déclenchée (optionnel)
 
     void _setLight(bool on);
 };

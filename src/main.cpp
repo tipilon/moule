@@ -8,6 +8,7 @@
 
 #include "config.h"
 #include "contact_log.h"
+#include "notifier.h"
 #include "palette_monitor.h"
 #include "wifi_manager.h"
 
@@ -15,6 +16,7 @@
 static WiFiManager wifiManager;
 static PaletteMonitor paletteMonitor;
 static ContactLog contactLog;
+static Notifier notifier;
 
 // ── Prototypes ───────────────────────────────────────────────
 static void setupOTA();
@@ -41,8 +43,26 @@ void setup() {
 
     paletteMonitor.begin(PALETTE_PIN, PALETTE_LIGHT_PIN, PALETTE_TIMEOUT_MS);
 
+    notifier.begin();
+
+    // Flag : retient si une alarme était active avant le front descendant
+    static bool alarmWasActive = false;
+
+    // Alarme déclenchée → notification urgente
+    paletteMonitor.setOnAlarm([]() {
+        alarmWasActive = true;
+        notifier.sendAlert("Cycle trop long — verifier le moule");
+    });
+
     contactLog.begin();
-    paletteMonitor.setOnContact([](bool isOn) { contactLog.addEvent(isOn); });
+    paletteMonitor.setOnContact([](bool isOn) {
+        contactLog.addEvent(isOn);
+        // Signal retombé à 0 après une alarme → notification de retour à la normale
+        if (!isOn && alarmWasActive) {
+            alarmWasActive = false;
+            notifier.sendResolved("Palette revenue a 0 — cycle termine");
+        }
+    });
 
     Serial.println("[setup] Initialisation terminée — entrée dans loop()");
 }

@@ -46,6 +46,13 @@ jobs:
       - name: Vérification de la taille du firmware
         run: pio run --environment ${{ matrix.environment }} --target size
 
+      - name: Publier le firmware (.bin)
+        uses: actions/upload-artifact@v4
+        with:
+          name: firmware-${{ matrix.environment }}-${{ github.run_number }}
+          path: .pio/build/${{ matrix.environment }}/firmware.bin
+          retention-days: 30
+
   # Auto-correction du format de code (clang-format)
   # Si des fichiers ne respectent pas le style, ils sont corrigés
   # et un commit "style: clang-format" est poussé automatiquement.

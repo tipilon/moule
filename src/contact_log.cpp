@@ -160,7 +160,7 @@ String ContactLog::_buildHtml() const {
     html += F("</table>");
     html += F("<p class='foot'>");
     html += String(_count);
-    html += F("&nbsp;&#233;v&#233;nement(s) enregistr&#233;(s) (max&nbsp;50)&nbsp;&#8212;&nbsp;");
+    html += F("&nbsp;&#233;v&#233;nement(s) enregistr&#233;(s) (max&nbsp;100)&nbsp;&#8212;&nbsp;");
     html += String(onCount);
     html += F("&nbsp;activation(s)</p>");
     html += F("<a class='btn' href='/clear'>Effacer le journal</a>");
