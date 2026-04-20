@@ -126,6 +126,7 @@ String ContactLog::_buildHtml() const {
           "border-bottom:2px solid #e94560;font-size:.9em}"
           "td{padding:8px 12px;border-bottom:1px solid #2a2a3e;font-size:.9em}"
           "tr:hover td{background:#16213e}"
+          ".over{color:#f39c12;font-weight:bold}"
           "p.foot{color:#666;font-size:.8em;margin-top:12px}"
           "a.btn{display:inline-block;margin-top:8px;padding:6px 16px;"
           "background:#e94560;color:#fff;border-radius:6px;"
@@ -177,13 +178,21 @@ String ContactLog::_buildHtml() const {
                 if (i + 1 < (int) _count) {
                     const LogEntry& next = _buf[(_head + (uint8_t) (i + 1)) % MAX_ENTRIES];
                     if (!next.isOn && next.ts >= e.ts) {
-                        html += _fmtDuration((uint32_t) (next.ts - e.ts));
+                        const uint32_t durSec = (uint32_t) (next.ts - e.ts);
+                        const bool over = (durSec * 1000UL >= PALETTE_TIMEOUT_MS);
+                        if (over) html += F("<span class='over'>");
+                        html += _fmtDuration(durSec);
+                        if (over) html += F("</span>");
                     } else {
                         html += F("&#8212;");
                     }
                 } else {
                     // Contact encore actif — afficher le temps écoulé
-                    html += _fmtDuration((uint32_t) (now - e.ts));
+                    const uint32_t durSec = (uint32_t) (now - e.ts);
+                    const bool over = (durSec * 1000UL >= PALETTE_TIMEOUT_MS);
+                    if (over) html += F("<span class='over'>");
+                    html += _fmtDuration(durSec);
+                    if (over) html += F("</span>");
                     html += F(" <span style='color:#aaa;font-size:.8em'>(en cours)</span>");
                 }
             } else {
