@@ -45,4 +45,5 @@ class ContactLog {
     // Construction de la page HTML
     String _buildHtml() const;
     String _fmtTs(time_t t) const;
+    String _fmtDuration(uint32_t sec) const;
 };
