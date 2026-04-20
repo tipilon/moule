@@ -33,6 +33,10 @@ void PaletteMonitor::begin(uint8_t inputPin, uint8_t lightPin, uint32_t timeoutM
     pinMode(_lightPin, OUTPUT);
     _setLight(false);  // s'assure que la lumière est éteinte au démarrage
 
+    // Lire l'état réel du pin pour éviter un faux front au démarrage
+    _lastRaw       = (digitalRead(_inputPin) == HIGH);
+    _debouncedHigh = _lastRaw;
+
     Serial.printf("[Palette] init — entrée GPIO%u  lumière GPIO%u  délai %ums\n", _inputPin,
                   _lightPin, _timeoutMs);
 }
@@ -60,17 +64,21 @@ void PaletteMonitor::update() {
             const bool falling = !_pendingState && _debouncedHigh;
             _debouncedHigh = _pendingState;
 
-            if (rising) {
-                // ── Front montant : démarrer le décompte ─────
+            // contact actif = front montant si ACTIVE_HIGH, front descendant si ACTIVE_LOW
+            const bool contactOn  = PALETTE_ACTIVE_HIGH ? rising  : falling;
+            const bool contactOff = PALETTE_ACTIVE_HIGH ? falling : rising;
+
+            if (contactOn) {
+                // ── Contact fermé : démarrer le décompte ─────
                 _risingEdgeTime = now;
                 _state = PaletteState::TIMING;
-                Serial.println("[Palette] ↑ front montant — décompte démarré");
+                Serial.println("[Palette] contact ON — décompte démarré");
                 if (_onContact)
                     _onContact(true);
-            } else if (falling) {
-                // ── Front descendant : reset alarme ──────────
+            } else if (contactOff) {
+                // ── Contact ouvert : reset alarme ────────────
                 const uint32_t duration = now - _risingEdgeTime;
-                Serial.printf("[Palette] ↓ front descendant — durée active %ums\n", duration);
+                Serial.printf("[Palette] contact OFF — durée active %ums\n", duration);
                 _state = PaletteState::IDLE;
                 _setLight(false);
                 if (_onContact)
