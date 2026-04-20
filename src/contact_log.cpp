@@ -76,14 +76,17 @@ String ContactLog::_fmtTs(time_t t) const {
 
 // ── _fmtDuration() ───────────────────────────────────────────
 String ContactLog::_fmtDuration(uint32_t sec) const {
-    if (sec == 0) return F("&lt;1s");
+    if (sec == 0)
+        return F("&lt;1s");
     char buf[16];
     if (sec < 60) {
-        snprintf(buf, sizeof(buf), "%lus", (unsigned long)sec);
+        snprintf(buf, sizeof(buf), "%lus", (unsigned long) sec);
     } else if (sec < 3600) {
-        snprintf(buf, sizeof(buf), "%lum%02lus", (unsigned long)(sec / 60), (unsigned long)(sec % 60));
+        snprintf(buf, sizeof(buf), "%lum%02lus", (unsigned long) (sec / 60),
+                 (unsigned long) (sec % 60));
     } else {
-        snprintf(buf, sizeof(buf), "%luh%02lum", (unsigned long)(sec / 3600), (unsigned long)((sec % 3600) / 60));
+        snprintf(buf, sizeof(buf), "%luh%02lum", (unsigned long) (sec / 3600),
+                 (unsigned long) ((sec % 3600) / 60));
     }
     return String(buf);
 }
@@ -155,8 +158,8 @@ String ContactLog::_buildHtml() const {
               "Aucun &#233;v&#233;nement enregistr&#233;</td></tr>");
     } else {
         const time_t now = time(nullptr);
-        for (int i = (int)_count - 1; i >= 0; i--) {
-            uint8_t idx = (_head + (uint8_t)i) % MAX_ENTRIES;
+        for (int i = (int) _count - 1; i >= 0; i--) {
+            uint8_t idx = (_head + (uint8_t) i) % MAX_ENTRIES;
             const LogEntry& e = _buf[idx];
             html += F("<tr><td>");
             html += String(i + 1);  // numéro chronologique (1 = plus ancien)
@@ -171,16 +174,16 @@ String ContactLog::_buildHtml() const {
             html += F("</td><td>");
             if (e.isOn) {
                 // Entrée ON : durée = jusqu'au OFF suivant, ou "en cours" si c'est la dernière
-                if (i + 1 < (int)_count) {
-                    const LogEntry& next = _buf[(_head + (uint8_t)(i + 1)) % MAX_ENTRIES];
+                if (i + 1 < (int) _count) {
+                    const LogEntry& next = _buf[(_head + (uint8_t) (i + 1)) % MAX_ENTRIES];
                     if (!next.isOn && next.ts >= e.ts) {
-                        html += _fmtDuration((uint32_t)(next.ts - e.ts));
+                        html += _fmtDuration((uint32_t) (next.ts - e.ts));
                     } else {
                         html += F("&#8212;");
                     }
                 } else {
                     // Contact encore actif — afficher le temps écoulé
-                    html += _fmtDuration((uint32_t)(now - e.ts));
+                    html += _fmtDuration((uint32_t) (now - e.ts));
                     html += F(" <span style='color:#aaa;font-size:.8em'>(en cours)</span>");
                 }
             } else {
