@@ -113,7 +113,7 @@ static void setupOTA() {
 static void printBanner() {
     Serial.println();
     Serial.println("╔══════════════════════════════════╗");
-    Serial.println("║      moulé — ESP32 IoT v0.1.0    ║");
+    Serial.println("║      moulé — ESP32 IoT v0.2.0    ║");
     Serial.println("╚══════════════════════════════════╝");
     Serial.printf("  Chip   : %s  Rev %d\n", ESP.getChipModel(), ESP.getChipRevision());
     Serial.printf("  Flash  : %u MB\n", ESP.getFlashChipSize() / (1024 * 1024));
