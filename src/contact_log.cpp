@@ -180,9 +180,11 @@ String ContactLog::_buildHtml() const {
                     if (!next.isOn && next.ts >= e.ts) {
                         const uint32_t durSec = (uint32_t) (next.ts - e.ts);
                         const bool over = (durSec * 1000UL >= PALETTE_TIMEOUT_MS);
-                        if (over) html += F("<span class='over'>");
+                        if (over)
+                            html += F("<span class='over'>");
                         html += _fmtDuration(durSec);
-                        if (over) html += F("</span>");
+                        if (over)
+                            html += F("</span>");
                     } else {
                         html += F("&#8212;");
                     }
@@ -190,9 +192,11 @@ String ContactLog::_buildHtml() const {
                     // Contact encore actif — afficher le temps écoulé
                     const uint32_t durSec = (uint32_t) (now - e.ts);
                     const bool over = (durSec * 1000UL >= PALETTE_TIMEOUT_MS);
-                    if (over) html += F("<span class='over'>");
+                    if (over)
+                        html += F("<span class='over'>");
                     html += _fmtDuration(durSec);
-                    if (over) html += F("</span>");
+                    if (over)
+                        html += F("</span>");
                     html += F(" <span style='color:#aaa;font-size:.8em'>(en cours)</span>");
                 }
             } else {
