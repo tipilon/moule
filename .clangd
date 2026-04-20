@@ -1,0 +1,25 @@
+CompileFlags:
+  # Supprime les flags GCC Xtensa non reconnus par clangd
+  Remove:
+    - -mlong-calls
+    - -mlongcalls
+    - -free
+    - -mtext-section-literals
+    - -fstrict-volatile-bitfields
+    - -mfix-esp32-psram-cache-issue
+    - --param=*
+
+Index:
+  Background: Skip        # N'indexe que les fichiers ouverts
+  StandardLibrary: No
+
+# Exclut le framework (.pio/) et les libs — seul src/ est analysé
+If:
+  PathExclude:
+    - .pio/.*
+    - .pioenvs/.*
+    - lib/.*
+
+Diagnostics:
+  Suppress:
+    - pp_including_mainfile_in_preamble
