@@ -7,10 +7,12 @@
 //    - Serveur HTTP sur port 80 — page consultable par navigateur
 //    - Endpoint /clear pour vider le journal
 //    - Endpoint /status : tableau de bord système (WiFi, heap, uptime)
+//    - Endpoint /update : mise à jour firmware via navigateur (HTTP OTA)
 // ============================================================
 
 #pragma once
 #include <Arduino.h>
+#include <Update.h>
 #include <WebServer.h>
 #include <time.h>
 
@@ -43,10 +45,13 @@ class ContactLog {
     void _handleRoot();
     void _handleClear();
     void _handleStatus();
+    void _handleUpdateGet();
+    void _handleUpdatePost();
 
     // Construction des pages HTML
     String _buildHtml() const;
     String _buildStatusHtml() const;
+    String _buildUpdateHtml(const String& msg = "", bool success = false) const;
     String _fmtTs(time_t t) const;
     String _fmtDuration(uint32_t sec) const;
     String _fmtUptime(uint32_t ms) const;

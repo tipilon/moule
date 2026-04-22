@@ -19,6 +19,28 @@ void ContactLog::begin() {
     _srv.on("/", [this]() { _handleRoot(); });
     _srv.on("/clear", [this]() { _handleClear(); });
     _srv.on("/status", [this]() { _handleStatus(); });
+    _srv.on("/update", HTTP_GET, [this]() { _handleUpdateGet(); });
+    _srv.on(
+        "/update", HTTP_POST, [this]() { _handleUpdatePost(); },
+        [this]() {
+            HTTPUpload& upload = _srv.upload();
+            if (upload.status == UPLOAD_FILE_START) {
+                Serial.printf("[OTA] Début : %s\n", upload.filename.c_str());
+                if (!Update.begin(UPDATE_SIZE_UNKNOWN)) {
+                    Update.printError(Serial);
+                }
+            } else if (upload.status == UPLOAD_FILE_WRITE) {
+                if (Update.write(upload.buf, upload.currentSize) != upload.currentSize) {
+                    Update.printError(Serial);
+                }
+            } else if (upload.status == UPLOAD_FILE_END) {
+                if (Update.end(true)) {
+                    Serial.printf("[OTA] Succès : %u octets\n", upload.totalSize);
+                } else {
+                    Update.printError(Serial);
+                }
+            }
+        });
     _srv.onNotFound([this]() { _srv.send(404, "text/plain", "Non trouve"); });
 
     _srv.begin();
@@ -55,6 +77,23 @@ void ContactLog::_handleRoot() {
 // ── _handleStatus() ──────────────────────────────────────────
 void ContactLog::_handleStatus() {
     _srv.send(200, "text/html; charset=utf-8", _buildStatusHtml());
+}
+
+// ── _handleUpdateGet() ───────────────────────────────────────
+void ContactLog::_handleUpdateGet() {
+    _srv.send(200, "text/html; charset=utf-8", _buildUpdateHtml());
+}
+
+// ── _handleUpdatePost() ──────────────────────────────────────
+void ContactLog::_handleUpdatePost() {
+    const bool ok = !Update.hasError();
+    _srv.sendHeader("Connection", "close");
+    _srv.send(200, "text/html; charset=utf-8",
+              _buildUpdateHtml(ok ? "" : Update.errorString(), ok));
+    if (ok) {
+        delay(1000);
+        ESP.restart();
+    }
 }
 
 // ── _handleClear() ───────────────────────────────────────────
@@ -110,6 +149,57 @@ String ContactLog::_fmtUptime(uint32_t ms) const {
                  (unsigned long) ((s % 3600) / 60));
     }
     return String(buf);
+}
+
+// ── _buildUpdateHtml() ───────────────────────────────────────
+String ContactLog::_buildUpdateHtml(const String& msg, bool success) const {
+    String html;
+    html.reserve(1024);
+    html +=
+        F("<!DOCTYPE html><html lang='fr'><head>"
+          "<meta charset='UTF-8'>"
+          "<meta name='viewport' content='width=device-width,initial-scale=1'>"
+          "<title>Moule - Mise à jour</title>"
+          "<style>"
+          "body{margin:0;padding:16px;font-family:sans-serif;"
+          "background:#1a1a2e;color:#e0e0e0}"
+          "h1{color:#e94560;margin:0 0 4px}"
+          "p.sub{color:#888;font-size:.85em;margin:0 0 20px}"
+          ".box{background:#16213e;border-radius:8px;padding:20px;max-width:480px}"
+          "input[type=file]{color:#e0e0e0;margin:12px 0;width:100%}"
+          "button{background:#e94560;color:#fff;border:none;padding:10px 24px;"
+          "border-radius:6px;font-size:1em;cursor:pointer;margin-top:8px}"
+          "button:hover{background:#c73652}"
+          ".ok{color:#2ecc71;margin-top:12px;font-weight:bold}"
+          ".err{color:#e74c3c;margin-top:12px;font-weight:bold}"
+          "a.btn{display:inline-block;margin-top:16px;padding:6px 16px;"
+          "background:#0f3460;color:#fff;border-radius:6px;"
+          "text-decoration:none;font-size:.85em}"
+          "</style></head><body>"
+          "<h1>Moul&#233; &#8212; Mise &#224; jour firmware</h1>"
+          "<p class='sub'>S&#233;lectionnez le fichier <strong>.bin</strong> "
+          "g&#233;n&#233;r&#233; par PlatformIO</p>"
+          "<div class='box'>");
+
+    if (success) {
+        html += F("<p class='ok'>&#10003; Mise &#224; jour r&#233;ussie — red&#233;marrage...</p>");
+    } else if (msg.length() > 0) {
+        html += F("<p class='err'>&#10007; Erreur : ");
+        html += msg;
+        html += F("</p>");
+    }
+
+    html +=
+        F("<form method='POST' enctype='multipart/form-data'>"
+          "<input type='file' name='firmware' accept='.bin'><br>"
+          "<button type='submit'>&#x1F4E4; Flasher</button>"
+          "</form>"
+          "<p style='color:#555;font-size:.8em;margin-top:12px'>"
+          "Fichier : <code>.pio/build/esp32dev/firmware.bin</code></p>"
+          "</div>"
+          "<a class='btn' href='/status'>&#8592; Tableau de bord</a>"
+          "</body></html>");
+    return html;
 }
 
 // ── _buildStatusHtml() ───────────────────────────────────────
