@@ -18,6 +18,7 @@ void ContactLog::begin() {
     // Enregistrement des routes HTTP
     _srv.on("/", [this]() { _handleRoot(); });
     _srv.on("/clear", [this]() { _handleClear(); });
+    _srv.on("/status", [this]() { _handleStatus(); });
     _srv.onNotFound([this]() { _srv.send(404, "text/plain", "Non trouve"); });
 
     _srv.begin();
@@ -49,6 +50,11 @@ void ContactLog::addEvent(bool isOn) {
 // ── _handleRoot() ────────────────────────────────────────────
 void ContactLog::_handleRoot() {
     _srv.send(200, "text/html; charset=utf-8", _buildHtml());
+}
+
+// ── _handleStatus() ──────────────────────────────────────────
+void ContactLog::_handleStatus() {
+    _srv.send(200, "text/html; charset=utf-8", _buildStatusHtml());
 }
 
 // ── _handleClear() ───────────────────────────────────────────
@@ -89,6 +95,131 @@ String ContactLog::_fmtDuration(uint32_t sec) const {
                  (unsigned long) ((sec % 3600) / 60));
     }
     return String(buf);
+}
+
+// ── _fmtUptime() ─────────────────────────────────────────────
+String ContactLog::_fmtUptime(uint32_t ms) const {
+    uint32_t s = ms / 1000;
+    char buf[32];
+    if (s < 60) {
+        snprintf(buf, sizeof(buf), "%lus", (unsigned long) s);
+    } else if (s < 3600) {
+        snprintf(buf, sizeof(buf), "%lum %lus", (unsigned long) (s / 60), (unsigned long) (s % 60));
+    } else {
+        snprintf(buf, sizeof(buf), "%luh %lum", (unsigned long) (s / 3600),
+                 (unsigned long) ((s % 3600) / 60));
+    }
+    return String(buf);
+}
+
+// ── _buildStatusHtml() ───────────────────────────────────────
+String ContactLog::_buildStatusHtml() const {
+    const uint32_t now = millis();
+    const bool ntpOk = (time(nullptr) > 1000000000UL);
+    const int rssi = WiFi.RSSI();
+
+    // Qualité signal : excellent > -60, bon > -70, faible > -80, mauvais
+    const char* rssiLabel = (rssi > -60)   ? "Excellent"
+                            : (rssi > -70) ? "Bon"
+                            : (rssi > -80) ? "Faible"
+                                           : "Mauvais";
+    const char* rssiColor = (rssi > -60)   ? "#2ecc71"
+                            : (rssi > -70) ? "#f39c12"
+                            : (rssi > -80) ? "#e67e22"
+                                           : "#e74c3c";
+
+    String html;
+    html.reserve(2048);
+
+    html +=
+        F("<!DOCTYPE html><html lang='fr'><head>"
+          "<meta charset='UTF-8'>"
+          "<meta name='viewport' content='width=device-width,initial-scale=1'>"
+          "<meta http-equiv='refresh' content='10'>"
+          "<title>Moule - Status</title>"
+          "<style>"
+          "body{margin:0;padding:16px;font-family:sans-serif;"
+          "background:#1a1a2e;color:#e0e0e0}"
+          "h1{color:#e94560;margin:0 0 4px}"
+          "p.sub{color:#888;font-size:.85em;margin:0 0 16px}"
+          "h2{color:#e94560;font-size:1em;margin:20px 0 8px;border-bottom:1px solid "
+          "#2a2a3e;padding-bottom:4px}"
+          "table{width:100%;border-collapse:collapse;margin-bottom:8px}"
+          "td{padding:7px 10px;border-bottom:1px solid #2a2a3e;font-size:.9em}"
+          "td:first-child{color:#888;width:45%}"
+          "td:last-child{font-weight:bold}"
+          "a.btn{display:inline-block;margin-top:12px;padding:6px 16px;"
+          "background:#0f3460;color:#fff;border-radius:6px;"
+          "text-decoration:none;font-size:.85em}"
+          "a.btn:hover{background:#16213e}"
+          "</style></head><body>");
+
+    html += F("<h1>Moul&#233; &#8212; Tableau de bord</h1>");
+    html += F("<p class='sub'>Rafra&#238;chissement automatique toutes les 10&nbsp;s</p>");
+
+    // ── Système ──
+    html += F("<h2>&#x2699; Syst&#232;me</h2><table>");
+    html += F("<tr><td>Uptime</td><td>");
+    html += _fmtUptime(now);
+    html += F("</td></tr>");
+    html += F("<tr><td>M&#233;moire libre (heap)</td><td>");
+    html += String(ESP.getFreeHeap() / 1024);
+    html += F("&nbsp;KB</td></tr>");
+    html += F("<tr><td>Chip</td><td>");
+    html += String(ESP.getChipModel());
+    html += F(" rev ");
+    html += String(ESP.getChipRevision());
+    html += F("</td></tr>");
+    html += F("<tr><td>CPU</td><td>");
+    html += String(ESP.getCpuFreqMHz());
+    html += F("&nbsp;MHz</td></tr>");
+    html += F("<tr><td>Flash</td><td>");
+    html += String(ESP.getFlashChipSize() / (1024 * 1024));
+    html += F("&nbsp;MB</td></tr>");
+    html += F("</table>");
+
+    // ── WiFi ──
+    html += F("<h2>&#x1F4F6; WiFi</h2><table>");
+    html += F("<tr><td>Adresse IP</td><td>");
+    html += WiFi.localIP().toString();
+    html += F("</td></tr>");
+    html += F("<tr><td>Hostname</td><td>");
+    html += WiFi.getHostname();
+    html += F("</td></tr>");
+    html += F("<tr><td>SSID</td><td>");
+    html += WiFi.SSID();
+    html += F("</td></tr>");
+    html += F("<tr><td>Signal (RSSI)</td><td style='color:");
+    html += rssiColor;
+    html += F("'>");
+    html += String(rssi);
+    html += F("&nbsp;dBm &mdash; ");
+    html += rssiLabel;
+    html += F("</td></tr>");
+    html += F("</table>");
+
+    // ── NTP ──
+    html += F("<h2>&#x1F552; Horloge NTP</h2><table>");
+    html += F("<tr><td>Synchronis&#233;</td><td style='color:");
+    html += ntpOk ? F("#2ecc71'>Oui") : F("#e74c3c'>Non");
+    html += F("</td></tr>");
+    if (ntpOk) {
+        html += F("<tr><td>Heure actuelle</td><td>");
+        html += _fmtTs(time(nullptr));
+        html += F("</td></tr>");
+    }
+    html += F("</table>");
+
+    // ── Journal ──
+    html += F("<h2>&#x1F4CB; Journal</h2><table>");
+    html += F("<tr><td>&#201;v&#233;nements enregistr&#233;s</td><td>");
+    html += String(_count);
+    html += F("&nbsp;/ 100</td></tr></table>");
+
+    html += F("<a class='btn' href='/'>&#8592; Journal des contacts</a>");
+    html += F("</body></html>");
+
+    return html;
 }
 
 // ── _buildHtml() ─────────────────────────────────────────────

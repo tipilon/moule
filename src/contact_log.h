@@ -6,6 +6,7 @@
 //    - Tampon circulaire de 100 événements horodatés (NTP)
 //    - Serveur HTTP sur port 80 — page consultable par navigateur
 //    - Endpoint /clear pour vider le journal
+//    - Endpoint /status : tableau de bord système (WiFi, heap, uptime)
 // ============================================================
 
 #pragma once
@@ -41,9 +42,12 @@ class ContactLog {
     // Gestionnaires HTTP
     void _handleRoot();
     void _handleClear();
+    void _handleStatus();
 
-    // Construction de la page HTML
+    // Construction des pages HTML
     String _buildHtml() const;
+    String _buildStatusHtml() const;
     String _fmtTs(time_t t) const;
     String _fmtDuration(uint32_t sec) const;
+    String _fmtUptime(uint32_t ms) const;
 };
