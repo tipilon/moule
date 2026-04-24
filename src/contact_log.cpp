@@ -30,6 +30,7 @@ void ContactLog::begin() {
                     Update.printError(Serial);
                 }
             } else if (upload.status == UPLOAD_FILE_WRITE) {
+                esp_task_wdt_reset();  // empêche le watchdog de couper pendant le flash
                 if (Update.write(upload.buf, upload.currentSize) != upload.currentSize) {
                     Update.printError(Serial);
                 }

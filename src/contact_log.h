@@ -14,6 +14,7 @@
 #include <Arduino.h>
 #include <Update.h>
 #include <WebServer.h>
+#include <esp_task_wdt.h>
 #include <time.h>
 
 class ContactLog {
