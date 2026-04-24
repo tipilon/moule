@@ -362,10 +362,11 @@ String ContactLog::_buildHtml() const {
 
     html += F("<h1>Moul&#233; &#8212; Journal des contacts</h1>");
     html += F("<p class='sub'>Rafra&#238;chissement automatique toutes les 30&nbsp;s</p>");
-    html += F("<div>"
-              "<a class='nav' href='/status'>&#x2699;&#xFE0F; Tableau de bord</a>"
-              "<a class='nav' href='/update'>&#x1F4E4; Mise &#224; jour</a>"
-              "</div>");
+    html +=
+        F("<div>"
+          "<a class='nav' href='/status'>&#x2699;&#xFE0F; Tableau de bord</a>"
+          "<a class='nav' href='/update'>&#x1F4E4; Mise &#224; jour</a>"
+          "</div>");
 
     // Badge état actuel
     html += F("<div class='state'>&#201;tat actuel&nbsp;: ");
