@@ -354,10 +354,18 @@ String ContactLog::_buildHtml() const {
           "background:#e94560;color:#fff;border-radius:6px;"
           "text-decoration:none;font-size:.85em}"
           "a.btn:hover{background:#c73652}"
+          "a.nav{display:inline-block;margin:0 6px 12px 0;padding:6px 16px;"
+          "background:#0f3460;color:#fff;border-radius:6px;"
+          "text-decoration:none;font-size:.85em}"
+          "a.nav:hover{background:#16213e}"
           "</style></head><body>");
 
     html += F("<h1>Moul&#233; &#8212; Journal des contacts</h1>");
     html += F("<p class='sub'>Rafra&#238;chissement automatique toutes les 30&nbsp;s</p>");
+    html += F("<div>"
+              "<a class='nav' href='/status'>&#x2699;&#xFE0F; Tableau de bord</a>"
+              "<a class='nav' href='/update'>&#x1F4E4; Mise &#224; jour</a>"
+              "</div>");
 
     // Badge état actuel
     html += F("<div class='state'>&#201;tat actuel&nbsp;: ");
