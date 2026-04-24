@@ -28,7 +28,6 @@
 
 // ── Timing ──────────────────────────────────────────────────
 #define WIFI_CONNECT_TIMEOUT_MS 15000U
-#define RECONNECT_DELAY_MS 5000U
 
 // ── LED statut WiFi ──────────────────────────────────────────
 // GPIO 2 = LED intégrée sur la plupart des ESP32 DevKit

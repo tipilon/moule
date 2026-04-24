@@ -61,6 +61,8 @@ jobs:
     runs-on: ubuntu-latest
     # Seulement sur push (pas sur PR d'une branche externe)
     if: github.event_name == 'push'
+    permissions:
+      contents: write
 
     steps:
       - uses: actions/checkout@v4
